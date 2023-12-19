@@ -9,7 +9,7 @@ language_tabs: # must be one of https://github.com/rouge-ruby/rouge/wiki/List-of
 
 toc_footers:
   - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/slatedocs/slate'>Documentation Powered by Slate</a>
+  - <a href='#'>Documentation Powered by BerryTalks</a>
 
 includes:
   - errors
@@ -20,226 +20,234 @@ code_clipboard: true
 
 meta:
   - name: description
-    content: Documentation for the Kittn API
+    content: Documentation for the BerryTalks API
 ---
+
+
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Welcome to the BerryTalks API! You can use our API to access API endpoints, which can get information for various API's.
 
 We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
 
-This example API documentation page was created with [Slate](https://github.com/slatedocs/slate). Feel free to edit it and use it as a base for your own API's documentation.
 
-# Authentication
+# Authenticate
+> All these apis are private protect by Security token, Use these Api to get token:
 
-> To authorize, use this code:
+
+| Parameter | REQUIRED | Description                            |
+|-----------|----------|----------------------------------------|
+| email     | true     | Agent Email provided by BerryTalks.    |
+| password  | true     | Agent Password provided by BerryTalks. |
+
 
 ```ruby
-require 'kittn'
+require 'uri'
+require 'net/http'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+url = URI("{BASE_URL}/auth/client/login")
+
+http = Net::HTTP.new(url.host, url.port)
+
+request = Net::HTTP::Post.new(url)
+request["cookie"] = 'JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E'
+request["Content-Type"] = 'application/json'
+request["User-Agent"] = 'insomnia/2023.5.8'
+request.body = { "email": "EMAIL_ADDRESS", "password": "PASSWORD"  }
+
+response = http.request(request)
+puts response.read_body
 ```
 
 ```python
-import kittn
+import http.client
 
-api = kittn.authorize('meowmeowmeow')
+conn = http.client.HTTPConnection("localhost:8080")
+
+payload = { "email": "EMAIL_ADDRESS",  "password": "PASSWORD" }
+
+headers = {
+    'cookie': "JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E",
+    'Content-Type': "application/json",
+    'User-Agent': "insomnia/2023.5.8"
+    }
+
+conn.request("POST", "/auth/client/login", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))
+```
+
+```shell
+curl --request POST \
+  --url {BASE_URL}/auth/client/login \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/2023.5.8' \
+  --cookie JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E \
+  --data '{
+    "email": "EMAIL_ADDRESS",
+    "password": "PASSWORD"
+}'
+```
+
+```javascript
+const data = JSON.stringify({
+  "email": "EMAIL_ADDRESS",
+  "password": "PASSWORD"
+});
+
+const xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function () {
+  if (this.readyState === this.DONE) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open("POST", "{BASE_URL}/auth/client/login");
+xhr.setRequestHeader("cookie", "JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.setRequestHeader("User-Agent", "insomnia/2023.5.8");
+
+xhr.send(data);
+```
+
+
+```json
+{
+  "status": 1,
+  "message": null,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiJ9.....",
+    "type": "Bearer",
+    "userDataResponses": null,
+    "accessToken": "eyJhbGciOiJIUzI1NiJ9....."
+  }
+}
+```
+
+
+# Send OTP Template
+
+> To Send OTP Template , use this code:
+
+| Parameter     | REQUIRED | Description                                    |
+|---------------|----------|------------------------------------------------|
+| to            | true     | Number you want to send message.               |
+| templateId    | true     | Template ID of your template.                  |
+| param         | true     | Param is Json Object of your array.            |
+| type          | true     | Type of parameter of component "text/image".   |
+| value         | true     | OTP code to send with API.                     |
+| componentType | true     | Type of Component "body/header/footer/button". |
+| buttonType    | true     | if template contain button, "quick_reply/Url"  |
+
+```ruby
+require 'uri'
+require 'net/http'
+
+url = URI("{BASE_URL}/broadcast/send")
+
+http = Net::HTTP.new(url.host, url.port)
+
+request = Net::HTTP::Post.new(url)
+request["cookie"] = 'JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E'
+request["Content-Type"] = 'application/json'
+request["User-Agent"] = 'insomnia/2023.5.8'
+request["Authorization"] = 'Bearer eyJhbGciOiJIUzI1NiJ9....'
+request.body = "{"to" : "NUMBER","templateId" : "TEMPLATE_NUMBER","param" :[{ "type" :"text", "value" : "OTP_CODE", "componentType" : "body" }, { "type " : "text", "value" : "OTP_CODE","componentType" :"button","buttonType" : "url" }]}"
+
+response = http.request(request)
+puts response.read_body
+```
+
+```python
+import http.client
+
+conn = http.client.HTTPConnection("localhost:8080")
+
+payload = {"to" : "NUMBER","templateId" : "TEMPLATE_NUMBER","param" :[{ "type" :"text", "value" : "OTP_CODE", "componentType" : "body" }, { "type " : "text", "value" : "OTP_CODE","componentType" :"button","buttonType" : "url" }]}
+
+headers = {
+    'cookie': "JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E",
+    'Content-Type': "application/json",
+    'User-Agent': "insomnia/2023.5.8",
+    'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9...."
+    }
+
+conn.request("POST", "/broadcast/send", payload, headers)
+
+res = conn.getresponse()
+data = res.read()
+
+print(data.decode("utf-8"))
 ```
 
 ```shell
 # With shell, you can just pass the correct header with each request
-curl "api_endpoint_here" \
-  -H "Authorization: meowmeowmeow"
+curl --request POST \
+  --url {BASE_URL}/broadcast/send \
+  --header 'Authorization: Bearer eyJhbGciOiJIUzI1....' \
+  --header 'Content-Type: application/json' \
+  --header 'User-Agent: insomnia/2023.5.8' \
+  --cookie JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E \
+  --data '{
+	"to" : "RECIPIENT_NUMBER",
+	"templateId" : "TEMPLATE_ID",
+	 "param" :[{
+		 "type" :"text",
+		 "value" : "YOUR_OTP_CODE",
+		 "componentType" :"body"
+		 
+	 },
+	{
+		 "type" :"text",
+		 "value" : "YOUR_OTP_CODE",
+		 "componentType" :"button",
+		 "buttonType" : "url"
+		 
+	 }]
+}'
 ```
 
 ```javascript
-const kittn = require('kittn');
+const data = JSON.stringify({
+  "to": "NUMBER",
+  "templateId": "TEMPLATE_NUMBER",
+  "param": [
+    {
+      "type": "text",
+      "value": "OTP_CODE",
+      "componentType": "body"
+    },
+    {
+      "type": "text",
+      "value": "OTP_CODE",
+      "componentType": "button",
+      "buttonType": "url"
+    }
+  ]
+});
 
-let api = kittn.authorize('meowmeowmeow');
-```
+const xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
 
-> Make sure to replace `meowmeowmeow` with your API key.
-
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
-
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
-
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
-```
-
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
+xhr.addEventListener("readystatechange", function () {
+  if (this.readyState === this.DONE) {
+    console.log(this.responseText);
   }
-]
+});
+
+xhr.open("POST", "{BASE_URL}/broadcast/send");
+xhr.setRequestHeader("cookie", "JSESSIONID=C443CDB2B1C66D02F5E0A0683ADB357E");
+xhr.setRequestHeader("Content-Type", "application/json");
+xhr.setRequestHeader("User-Agent", "insomnia/2023.5.8");
+xhr.setRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiJ9....");
+
+xhr.send(data);
 ```
 
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/api/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
-```
-
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-
-### HTTP Request
-
-`GET http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2" \
-  -X DELETE \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "deleted" : ":("
-}
-```
-
-This endpoint deletes a specific kitten.
-
-### HTTP Request
-
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
-
+> Make sure to replace `eyJhbGciOiJIUzI1NiJ9....` with your Token.
